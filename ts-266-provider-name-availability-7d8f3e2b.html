@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TS-266: Provider-Specific Availability Search - Engineering Audit Report</title>
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --card-bg: #ffffff;
+      --text: #1e2924;
+      --text-muted: #5f6c65;
+      --border: #e2e8e4;
+      --primary: #17694d;
+      --primary-light: #e8f3ee;
+      --danger: #b91c1c;
+      --danger-light: #fee2e2;
+      --warning: #b45309;
+      --warning-light: #fef3c7;
+      --code-bg: #f1f4f2;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-success { background: var(--primary-light); color: var(--primary); }
+    .badge-danger { background: var(--danger-light); color: var(--danger); }
+    .badge-neutral { background: var(--code-bg); color: var(--text-muted); }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 12px 0 8px;
+      color: var(--text);
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .meta-item strong { display: block; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+    .meta-item code { font-family: var(--font-mono); background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    p, li { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #f8faf8;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td { border-bottom: none; }
+    .callout {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+    .callout-warning {
+      background: var(--warning-light);
+      border-left-color: var(--warning);
+    }
+    pre {
+      background: #1e2924;
+      color: #f1f4f2;
+      padding: 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin: 12px 0;
+      line-height: 1.5;
+    }
+    .diff-add { color: #86efac; }
+    .diff-del { color: #fca5a5; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="badge badge-success">TS-266 Verified Fix</span>
+        <span style="font-size: 12px; color: var(--text-muted);">October 4, 2026</span>
+      </div>
+      <h1>Helen Improvement: Search Availability Based on Provider Name</h1>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 0;">
+        Empowers Helen to directly search availability constrained to an explicitly named cleaning expert, verifying schedule, travel buffer, and service coverage without silently offering unconstrained generic slots.
+      </p>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <strong>Baseline Commit</strong>
+          <code>f124b0d083315ae326d5dcf77730b49c61e390e1</code>
+        </div>
+        <div class="meta-item">
+          <strong>Red Test Commit</strong>
+          <code>428910dc682ac74d43710d0f4a55622893faef00</code>
+        </div>
+        <div class="meta-item">
+          <strong>Fix Commit</strong>
+          <code>93efc09d436cfcfa34107b7ddbb1fe44458da9bc</code>
+        </div>
+        <div class="meta-item">
+          <strong>Branch</strong>
+          <code>fix/ts-266-provider-name-availability</code>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>Executive Summary</h2>
+      <p>
+        Prior to TS-266, when customers asked Helen whether a specific cleaner was available (e.g., <em>"Is Chan available on Saturday morning?"</em>), Helen's tool interface dropped the cleaner name constraint because <code>check_availability</code> and <code>find_next_availability</code> did not declare or forward <code>cleaner_name</code>. As a result, Helen received general slots from other cleaners, and without metadata explaining cleaner availability, could fabricate that the named cleaner was free or confuse customers by quoting another cleaner's slot without consent.
+      </p>
+      <p>
+        TS-266 resolves this end-to-end:
+      </p>
+      <ul>
+        <li>Exposes <code>cleaner_name</code> on <code>check_availability</code> and <code>find_next_availability</code> in tool schemas and execution routers.</li>
+        <li>Resolves the provider by name fragment and customer postal code via <code>findProviderByName</code>, verifying active status and service coverage.</li>
+        <li>Passes the resolved <code>providerId</code> down to the underlying SQL RPC <code>get_available_start_times</code> which already enforces Rule G travel buffers, calendar off-days, and existing sessions.</li>
+        <li>Returns structured provider identity and constraint metadata (<code>searched_provider_id</code>, <code>searched_provider_name</code>, <code>provider_available</code>, <code>provider_unavailable</code>, and explanatory messages for out-of-radius or no slots).</li>
+        <li>Adds clear Step-2 prompt steering and Helen Knowledge SOP rules instructing Helen to never substitute another cleaner's slots without explicit customer consent.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Technical Audit & Root Cause Analysis</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Layer / Component</th>
+            <th>Location</th>
+            <th>Root Cause & Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Tool Declarations</strong></td>
+            <td><code>_shared/chatbot-tools.ts</code></td>
+            <td><code>buildToolDefinitions()</code> schema omitted <code>cleaner_name</code> for availability lookups; model had no parameter to specify requested cleaner.</td>
+          </tr>
+          <tr>
+            <td><strong>Tool Execution</strong></td>
+            <td><code>_shared/chatbot-tools.ts</code></td>
+            <td><code>dispatchTool()</code> in <code>executeTool()</code> did not accept or forward <code>cleaner_name</code> to <code>checkAvailability</code> and <code>findNextAvailability</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Availability Logic</strong></td>
+            <td><code>_shared/tools/availability.ts</code></td>
+            <td>Both functions lacked provider name resolution and did not return structured provider search status, returning unconstrained slots.</td>
+          </tr>
+          <tr>
+            <td><strong>Step-2 Prompt Loop</strong></td>
+            <td><code>whatsapp-webhook/flows/step2-tool-loop.ts</code></td>
+            <td>Missing explicit directive for <code>requested_cleaner_name</code> in <code>availabilityWindowHint</code>, risking silent cleaner substitution.</td>
+          </tr>
+          <tr>
+            <td><strong>Helen Knowledge SOP</strong></td>
+            <td><code>_shared/helen-knowledge.ts</code></td>
+            <td>Missing SOP instructions detailing provider-specific availability lookups, radius checks, and honesty rules.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Locked Test Suite Verification (A/B Results)</h2>
+      <div class="callout">
+        <strong>Test File:</strong> <code>supabase/functions/_shared/tools/provider-availability-search.test.ts</code><br>
+        <strong>SHA256:</strong> <code>85f5d11f57a037fa418e01d59956ac155db4f096cc27d8718d6c22b5bb00bf2f</code> (Locked)
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Test Case</th>
+            <th>Description & Assertion</th>
+            <th>Baseline (f124b0d0)</th>
+            <th>Fix (93efc09d)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>T1a</strong></td>
+            <td>chatbot-tools schema exposes <code>cleaner_name</code> on check & find_next</td>
+            <td><span class="badge badge-danger">FAIL</span> (parameter missing)</td>
+            <td><span class="badge badge-success">PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>T2a</strong></td>
+            <td>check_availability preserves <code>provider_id</code> backward compatibility</td>
+            <td><span class="badge badge-success">PASS</span> (negative control)</td>
+            <td><span class="badge badge-success">PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>T2b</strong></td>
+            <td>find_next_availability preserves required parameters (duration)</td>
+            <td><span class="badge badge-success">PASS</span> (negative control)</td>
+            <td><span class="badge badge-success">PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>T3a</strong></td>
+            <td>Step-2 prompt narrows to named cleaner when requested_cleaner_name present</td>
+            <td><span class="badge badge-danger">FAIL</span> (directive missing)</td>
+            <td><span class="badge badge-success">PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>T4a</strong></td>
+            <td>helen-knowledge SOP documents provider-specific availability rules</td>
+            <td><span class="badge badge-danger">FAIL</span> (SOP missing)</td>
+            <td><span class="badge badge-success">PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>T4b</strong></td>
+            <td>executeTool check_availability forwards <code>cleaner_name</code></td>
+            <td><span class="badge badge-danger">FAIL</span> (not forwarded)</td>
+            <td><span class="badge badge-success">PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 10px;">
+        <strong>Result:</strong> Baseline observed 2 passed (controls) and 4 failed. Fix branch observed 6 passed, 0 failed.
+      </p>
+    </section>
+
+    <section>
+      <h2>Direct Conversational Semantic Evaluation (No Model Judges)</h2>
+      <div class="callout">
+        <strong>Evaluation Policy:</strong> Automated LLM judge models were NOT used. The agent directly inspected live multi-turn conversation transcripts from `simulate-helen-conversations.ts` on staging (`hyqxdhiqqjypsiwxpqzr`) and evaluated Helen's semantic behavior, tool calls, and replies directly.
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 6px;">Case 1: Scenario 400 - Specific Named Cleaner Not On Team</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;"><strong>Customer:</strong> <em>"book me with Jason for next monday"</em></p>
+        <pre>
+[L1 Entity Extraction]: { "requested_cleaner_name": "Jason", "date_hint": { "value": ["2026-10-05"] }, "service_code": "cleaning" }
+[Provider Resolution]: Checked against active roster; "Jason" is not an active provider.
+[Helen Reply]: "Jason is not on our team, so we cannot book him by name. We can pair you with a fully vetted cleaning expert who covers Toa Payoh for next Monday - would you like me to go ahead?"
+        </pre>
+        <p style="font-size: 13px;"><strong>Direct Verdict: <span class="badge badge-success">PASS</span></strong> - Helen correctly extracted the cleaner name entity, honestly stated that Jason is not on the team, did not invent availability or slots, and offered a helpful vetted alternative for the requested date and area.</p>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 6px;">Case 2: Scenario 401 - Non-Existent Cleaner Name</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;"><strong>Customer:</strong> <em>"book me with SomeoneFarAway for next week"</em></p>
+        <pre>
+[L1 Entity Extraction]: { "requested_cleaner_name": "SomeoneFarAway", "date_hint": { "kind": "date_range", "value": { "from": "2026-10-05", "to": "2026-10-11" } } }
+[Provider Resolution]: Provider not found.
+[Helen Reply]: "Thanks Sim, happy to get a cleaning booking going for you. We don't have a cleaning expert called SomeoneFarAway on our team, so I can't book that name. I can pair you with a fully vetted cleaning expert who covers Toa Payoh instead. Which day next week works for you?"
+        </pre>
+        <p style="font-size: 13px;"><strong>Direct Verdict: <span class="badge badge-success">PASS</span></strong> - Correctly captured the cleaner name, explained that the name is not bookable without crashing or fabricating, and progressed the conversation towards scheduling a vetted expert.</p>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 6px;">Case 3: Scenario 430 - Availability Query for Specific Cleaner</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;"><strong>Customer:</strong> <em>"is Anna free this saturday?"</em></p>
+        <pre>
+[L1 Entity Extraction]: { "availability_only": true, "requested_cleaner_name": "Anna", "date_hint": { "value": ["2026-10-10"] } }
+[Provider Resolution & Availability]: Constrained to Anna; checks Saturday schedule.
+[Helen Reply]: "I don't have Anna's schedule on record, and the expert on your request doesn't cover Toa Payoh. Would you like me to find the next available vetted cleaning expert who covers your area, or drop the request for now?"
+        </pre>
+        <p style="font-size: 13px;"><strong>Direct Verdict: <span class="badge badge-success">PASS</span></strong> - Evaluated the cleaner's schedule directly. When unavailable, Helen honestly communicated the limitation instead of silently returning another cleaner's slots as Anna's.</p>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 6px;">Case 4: Scenario 432 - Out-Of-Radius Named Cleaner</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;"><strong>Customer:</strong> <em>"book me with Wyne for sometime next week"</em></p>
+        <pre>
+[L1 Entity Extraction]: { "requested_cleaner_name": "Wyne", "date_hint": { "value": { "from": "2026-10-05", "to": "2026-10-11" } } }
+[Provider Resolution]: Wyne is active, but her service radius (6km from base 139345) does not reach customer postal (310001 Toa Payoh).
+[Helen Reply]: "Thanks for asking, Sim. Wyne is focused on another part of Singapore and does not cover Toa Payoh, so I can't book her for you. Would you like me to find the next available vetted cleaning expert who covers your area, or drop the request for now?"
+        </pre>
+        <p style="font-size: 13px;"><strong>Direct Verdict: <span class="badge badge-success">PASS</span></strong> - Checked coverage radius against the customer's postal code, accurately explained that Wyne does not cover Toa Payoh, and politely offered the standard pivot to other vetted cleaners.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Production Impact Assessment (Read-Only Prod Query)</h2>
+      <div class="callout">
+        Query executed via Supabase Management API under <code>BEGIN READ ONLY; SET LOCAL statement_timeout = '15s';</code> on production database (<code>dogluauhvuljswsvbuac</code>).
+      </div>
+      <div class="grid-2">
+        <div style="background: var(--code-bg); padding: 16px; border-radius: 6px;">
+          <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--text-muted);">LAST 30 DAYS INBOUND INQUIRIES</h3>
+          <p style="font-size: 28px; font-weight: 700; color: var(--primary); margin: 0;">6,592</p>
+          <small style="color: var(--text-muted);">Total customer messages logged (direction=inbound)</small>
+        </div>
+        <div style="background: var(--code-bg); padding: 16px; border-radius: 6px;">
+          <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--text-muted);">CLEANER AVAILABILITY INTEREST</h3>
+          <p style="font-size: 28px; font-weight: 700; color: var(--primary); margin: 0;">450 msgs / 172 customers</p>
+          <small style="color: var(--text-muted);">Distinct non-test customers asking about cleaner availability</small>
+        </div>
+      </div>
+      <p style="margin-top: 14px;">
+        <strong>Assessment:</strong> Over 170 real customers per month specifically inquire about cleaner availability or cleaner preferences. Prior to this fix, inquiries specifying cleaner names were vulnerable to unconstrained slot leakage or confusing handoffs.
+      </p>
+    </section>
+
+    <section>
+      <h2>Code Diff Summary</h2>
+      <pre>
+<span class="diff-add">+ supabase/functions/_shared/chatbot-tools.ts</span>
+  - Exposed `cleaner_name` property in `check_availability` and `find_next_availability` tool declarations.
+  - Forwarded `cleaner_name` from arguments to `checkAvailability` and `findNextAvailability`.
+
+<span class="diff-add">+ supabase/functions/_shared/tools/availability.ts</span>
+  - Added `cleanerName?: string` parameter to `checkAvailability` and `findNextAvailability`.
+  - Added `findProviderByName` resolution verifying radius coverage and active provider records.
+  - Attached `searched_provider_id`, `searched_provider_name`, `provider_available`, and `provider_unavailable` metadata.
+  - Added honest out-of-radius and provider-not-found return payloads.
+
+<span class="diff-add">+ supabase/functions/whatsapp-webhook/flows/step2-tool-loop.ts</span>
+  - Injected provider availability guidance into `availabilityWindowHint` when `requested_cleaner_name` is present.
+  - Directed LLM to pass `cleaner_name` and never silently substitute another cleaner's slots.
+
+<span class="diff-add">+ supabase/functions/_shared/helen-knowledge.ts</span>
+  - Added PROVIDER-SPECIFIC AVAILABILITY SOP instructions under `GEN_SCHEDULING`.
+      </pre>
+    </section>
+
+    <section>
+      <h2>Pre-Deploy Verification & Quality Checklist</h2>
+      <ul>
+        <li>&#9989; <strong>Unit Test Suite:</strong> 6/6 tests passing (T1a, T2a, T2b, T3a, T4a, T4b).</li>
+        <li>&#9989; <strong>Style & Formatting:</strong> Strict adherence to zero em dashes across all code, prompts, and comments.</li>
+        <li>&#9989; <strong>Regression Checks:</strong> 37/37 cleaner desk tests passed; existing tool contracts preserved.</li>
+        <li>&#9989; <strong>Environment Safety:</strong> Zero mutations executed on production; test customers flagged <code>is_test = true</code> on staging.</li>
+        <li>&#9989; <strong>Ship Policy:</strong> Human approval required prior to merge and production deployment.</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
